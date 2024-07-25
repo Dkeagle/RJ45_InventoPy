@@ -3,23 +3,42 @@ import tkinter.ttk as ttk
 import tkinter.messagebox as msgbox
 import json
 
-class WindowManager:
+INVENTORY_FILE_PATH = r"./template.json"
+
+class Application:
     def __init__(self):
         self._window = tk.Tk()
         self._window.title("RJ45-InventoPy")
         self._window.protocol("WM_DELETE_WINDOW", self._confirm_quit_without_saving)
         self._window.resizable(False, False)
-        self._data = None 
+        self._data = None
+        self._filepath = None
         self._text_vars = {}
 
     def load_data(self, filepath):
-        with open(filepath, 'r') as file:
-            self._data = json.load(file)
+        self._filepath = filepath
+        try:
+            with open(self._filepath, 'r') as file:
+                self._data = json.load(file)
+        except (OSError, FileNotFoundError):
+            self._display_error_message()
+            exit()
         
     def save_data(self, filepath):
-        with open(filepath, 'w') as file:
-            json.dump(self._data, file, indent=4)
+        try:
+            with open(filepath, 'w') as file:
+                json.dump(self._data, file, indent=4)
+            return 1
+        except (OSError, FileNotFoundError):
+            self._display_error_message()
+            return 0
     
+    def _display_error_message(self):
+        msgbox.showerror("Error", "Server is not accessible.\n\nPlease check your network connection and try again.\nIf the problem persists, contact your network administrator.", type=msgbox.OK)
+
+    def _display_help_message(self):
+        msgbox.showinfo("Help", "Click to add or remove 1.\nShift+Click to add or remove 10.\n\nDon't forget to save your changes.", type=msgbox.OK)
+
     def _update_value(self, length, color, incr):
         self._data[length][color] += incr
         if self._data[length][color] < 0: self._data[length][color] = 0
@@ -84,12 +103,13 @@ class WindowManager:
         control_frame = ttk.Frame(master=self._window, padding=(5, 5))
         control_frame.pack(side=tk.TOP, fill=tk.X, pady=10)
         
+        ttk.Button(control_frame, text="?", width=3, command=self._display_help_message).pack(side=tk.LEFT, padx=5)
         ttk.Button(control_frame, text="Save & Quit", command=self._save_and_quit).pack(side=tk.RIGHT, padx=5)
         ttk.Button(control_frame, text="Quit without Saving", command=self._confirm_quit_without_saving).pack(side=tk.RIGHT, padx=5)
     
     def _save_and_quit(self):
-        self.save_data("cables.json")
-        self._window.destroy()
+        if self.save_data(self._filepath):
+            self._window.destroy()
     
     def _confirm_quit_without_saving(self):
         if msgbox.askyesno(title = "Quit without Saving", message = "Your changes won't be saved.\nAre you sure you want to quit?", icon="warning"):
@@ -103,6 +123,6 @@ class WindowManager:
         self._window.mainloop()
 
 if __name__ == "__main__":
-    wd = WindowManager()
-    wd.load_data("cables.json")
-    wd.run()
+    app = Application()
+    app.load_data(INVENTORY_FILE_PATH)
+    app.run()
