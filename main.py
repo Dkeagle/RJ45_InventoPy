@@ -2,8 +2,11 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import tkinter.messagebox as msgbox
 import json
+import os
+import sys
 
-INVENTORY_FILE_PATH = r"./template.json"
+INVENTORY_FILE_PATH = r"template.json"
+VERSION = "1.1"
 
 class Application:
     def __init__(self):
@@ -37,7 +40,7 @@ class Application:
         msgbox.showerror("Error", "Server is not accessible.\n\nPlease check your network connection and try again.\nIf the problem persists, contact your network administrator.", type=msgbox.OK)
 
     def _display_help_message(self):
-        msgbox.showinfo("Help", "Click to add or remove 1.\nShift+Click to add or remove 10.\n\nDon't forget to save your changes.\n\n© Dylan TAILDEMAN - 2024", type=msgbox.OK)
+        msgbox.showinfo("Help", f"RJ45-InventoPy\nv{VERSION}\n\nClick to add or remove 1.\nShift+Click to add or remove 10.\nDon't forget to save your changes.\n\n© Dylan TAILDEMAN - 2024", type=msgbox.OK)
 
     def _update_value(self, length, color, incr):
         self._data[length][color] += incr
