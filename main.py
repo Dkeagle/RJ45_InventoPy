@@ -3,7 +3,7 @@ import tkinter.ttk as ttk
 import tkinter.messagebox as msgbox
 import json
 
-INVENTORY_FILE_PATH = r"\\synolabs.alstom.hub\Share\Dylan\cables.json"
+INVENTORY_FILE_PATH = r"./template.json"
 
 class Application:
     def __init__(self):
